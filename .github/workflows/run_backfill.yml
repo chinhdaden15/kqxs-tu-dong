@@ -1,0 +1,32 @@
+name: Run Backfill (1 Time)
+
+on:
+  workflow_dispatch: # Chỉ chạy khi bấm nút
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pytz
+
+      - name: Run Backfill Script
+        run: python backfill.py
+
+      - name: Commit Results
+        run: |
+          git config --global user.name 'Backfill Bot'
+          git config --global user.email 'bot@noreply.github.com'
+          git add data.json
+          git commit -m "Backfilled 30 days of data"
+          git push
