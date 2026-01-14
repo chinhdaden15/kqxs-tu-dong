@@ -1,0 +1,36 @@
+name: Cap nhat XSMN
+
+on:
+  schedule:
+    # Chạy lúc 17:15 giờ Việt Nam hàng ngày (tức 10:15 UTC)
+    - cron: '15 10 * * *'
+  workflow_dispatch: # Cho phép bấm chạy thử thủ công
+
+permissions:
+  contents: write
+
+jobs:
+  run_bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tai ma nguon
+        uses: actions/checkout@v3
+
+      - name: Cai dat Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Cai thu vien
+        run: |
+          pip install requests beautifulsoup4 pytz
+
+      - name: Chay chuong trinh
+        run: python xsmn_scraper.py
+
+      - name: Luu ket qua
+        run: |
+          git config --global user.name 'Bot Xo So'
+          git config --global user.email 'bot@noreply.github.com'
+          git add data.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Cap nhat ket qua" && git push)
